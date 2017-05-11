@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="@string/options">
+        <menu>
+            <item
+                android:id="@+id/navConfig"
+                android:icon="@drawable/ic_build"
+                android:title="@string/configurations" />
+            <item
+                android:id="@+id/navSignout"
+                android:icon="@drawable/ic_power_settings_new"
+                android:title="@string/signout" />
+        </menu>
+    </item>
+</menu>
