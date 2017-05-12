@@ -29,6 +29,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
     private TextView txtReMorning;
+    private Typeface fontPacifigoRegular;
     private GoogleApiClient mGoogleApiClient;
     private GoogleSignInOptions gso;
     private SignInButton btnLogGoogle;
@@ -79,6 +80,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 signIn();
             }
         });
+
+        fontPacifigoRegular = Typeface.createFromAsset(getAssets(), "fonts/Pacifico-Regular.ttf");
+        txtReMorning.setTypeface(fontPacifigoRegular);
     }
 
     private void signIn() {

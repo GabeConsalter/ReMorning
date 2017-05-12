@@ -31,4 +31,7 @@
     <string name="newTasksExpl">Set this hour to get new tasks</string>
     <string name="resetTasks">Reset Tasks</string>
     <string name="resetTasksExpl">Set this hour to reset tasks and store the delayed tasks</string>
+    <string name="todayTasks">Today Tasks</string>
+    <string name="oldTasks">Old Tasks</string>
+    <string name="relaxBoy">Relax boy, you have more... nothing to do!</string>
 </resources>

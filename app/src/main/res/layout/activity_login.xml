@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif"
-        android:text="@string/app_name"
+        android:text="@string/app_name_min"
         android:textAlignment="center"
         android:textColor="#FFF"
         android:textSize="50dp"

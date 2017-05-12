@@ -4,5 +4,7 @@
     <color name="colorPrimaryDark">#cb356b</color>
     <color name="colorAccent">#cb356b</color>
     <color name="gradientStart">#bd3f32</color>
-    <color name="gradientEnd">#cb356b</color>cb356b
+    <color name="gradientEnd">#cb356b</color>
+    <color name="backgroundGray">#eeeaeb</color>
+    <color name="backgroundOldTasks">#14cb356b</color>
 </resources>
