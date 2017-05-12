@@ -84,7 +84,8 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.navConfig) {
-            // Handle the camera action
+            startActivity(new Intent(MainActivity.this, ConfigActivity.class));
+
         } else if (id == R.id.navSignout) {
             new AlertDialog.Builder(this)
                     .setTitle(R.string.signout)

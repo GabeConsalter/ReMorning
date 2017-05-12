@@ -19,4 +19,16 @@
     <string name="newtask">New Task</string>
     <string name="whatTask">What do you have to do?</string>
     <string name="whenTask">When?</string>
+    <string name="newtaskhint0">buy shoes</string>
+    <string name="newtaskhint1"></string>
+    <string name="newtaskhint2"></string>
+    <string name="newtaskhint3"></string>
+    <string name="newtaskhint4"></string>
+    <string name="title_activity_config">ConfigActivity</string>
+    <string name="notifications">Notifications</string>
+    <string name="notificationsExpl">Show me notifications of tasks</string>
+    <string name="newTasks">New Tasks</string>
+    <string name="newTasksExpl">Set this hour to get new tasks</string>
+    <string name="resetTasks">Reset Tasks</string>
+    <string name="resetTasksExpl">Set this hour to reset tasks and store the delayed tasks</string>
 </resources>

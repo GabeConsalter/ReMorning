@@ -24,6 +24,10 @@
         <activity
             android:name=".NewTaskActivity"
             android:label="@string/newtask"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".ConfigActivity"
+            android:label="@string/configurations"
             android:theme="@style/AppTheme"></activity>
     </application>
 
