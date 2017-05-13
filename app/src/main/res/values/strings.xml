@@ -34,4 +34,7 @@
     <string name="todayTasks">Today Tasks</string>
     <string name="oldTasks">Old Tasks</string>
     <string name="relaxBoy">Relax boy, you have more... nothing to do!</string>
+    <string name="loginFailed">Google Login failed</string>
+    <string name="close">Close</string>
+    <string name="closeMsg">Are you sure you want to close Remorning?</string>
 </resources>

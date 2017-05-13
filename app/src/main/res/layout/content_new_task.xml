@@ -9,7 +9,9 @@
     android:weightSum="1"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="gabeconsalter.remorning.NewTaskActivity"
-    tools:showIn="@layout/activity_new_task">
+    tools:showIn="@layout/activity_new_task"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true">
 
     <TextView
         android:id="@+id/txtNewWhat"
@@ -30,7 +32,7 @@
         android:id="@+id/txtNewWhen"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/whenTask" />
+        android:text="@string/whenTask"/>
 
     <CalendarView
         android:id="@+id/calendarView"
