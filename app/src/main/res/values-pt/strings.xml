@@ -18,11 +18,11 @@
     <string name="signout">Sair da conta</string>
     <string name="whenTask">Quando?</string>
     <string name="yes">Sim</string>
-    <string name="whatTask">O que você tem que fazer?</string>
-    <string name="todayTasks">Tarefas de Hoje</string>
+    <string name="whatTask">O que você tem para fazer?</string>
+    <string name="todayTasks">Tarefas de hoje</string>
     <string name="signoutConfirm">Você tem certeza que deseja sair da conta?</string>
     <string name="serverConnectionLost">Conexão com servidor perdida</string>
     <string name="resetTasksExpl">Configure esta hora para resetar tarefas e armazenar as tarefas atrasadas</string>
     <string name="relaxBoy">Relaxa, você tem mais... nada para fazer!</string>
-    <string name="newTasksExpl">Configure esta hora para ter mais tarefas</string>
+    <string name="newTasksExpl">Atualizar Tarefas</string>
 </resources>
