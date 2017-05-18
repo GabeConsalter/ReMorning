@@ -11,7 +11,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:orientation="vertical">
 
         <TextView
@@ -20,20 +20,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <LinearLayout
-            android:padding="@dimen/paddingLayout"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
+        <FrameLayout
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/revTasks"
+            <ListView
+                android:id="@+id/livTasks"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </LinearLayout>
+                android:layout_height="0dp" />
+        </FrameLayout>
+
 
         <TextView
-            android:text="@string/newTasks"
+            android:text="@string/oldTasks"
             android:padding="@dimen/paddingLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
