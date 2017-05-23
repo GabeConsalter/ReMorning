@@ -134,9 +134,21 @@ public class MainActivity extends AppCompatActivity
         livTasks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                cleanListSelection(parent, tasks.size());
 
+                parent.getChildAt(position).setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimary));
+                TextView txtDescription = (TextView) parent.getChildAt(position).findViewById(R.id.txtDescription);
+                txtDescription.setTextColor(Color.WHITE);
             }
         });
+}
+
+    public void cleanListSelection(AdapterView<?> parent, int size){
+        for(int i = 0; i < size; i++) {
+            parent.getChildAt(i).setBackgroundColor(Color.WHITE);
+            TextView txtDescription = (TextView) parent.getChildAt(i).findViewById(R.id.txtDescription);
+            txtDescription.setTextColor(Color.GRAY);
+        }
     }
 
     public void ajustaTamanho(int c, ListView lista){
