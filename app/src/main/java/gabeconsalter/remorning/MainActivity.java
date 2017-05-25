@@ -59,9 +59,11 @@ import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import gabeconsalter.remorning.entity.MyDate;
 import gabeconsalter.remorning.entity.Task;
 import gabeconsalter.remorning.misc.ListTaskAdapter;
 
@@ -82,6 +84,8 @@ public class MainActivity extends AppCompatActivity
     private boolean itemsEnabled = false;
     private ArrayList<Task> tasks = new ArrayList<Task>();
     private ListView livTasks;
+    private ListTaskAdapter aLivTasks;
+    private static final int NEW_TASK = 69;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +98,7 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, NewTaskActivity.class));
+                startActivityForResult(new Intent(MainActivity.this, NewTaskActivity.class), 1);
             }
         });
 
@@ -113,7 +117,27 @@ public class MainActivity extends AppCompatActivity
 
         FirebaseDatabase fb = FirebaseDatabase.getInstance();
         DatabaseReference ref = fb.getReference("users/" + user.getUid() + "/task");
+/*
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
 
+                for(DataSnapshot snap: dataSnapshot.getChildren()){
+                    Task task = snap.getValue(Task.class);
+
+                    tasks.add(task);
+                    aLivTasks = new ListTaskAdapter(MainActivity.this, R.layout.tasks_list_item, tasks);
+                    livTasks.setAdapter(aLivTasks);
+                    ajustaTamanho(tasks.size(), livTasks);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });*/
+/*
         ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -122,10 +146,43 @@ public class MainActivity extends AppCompatActivity
                     Task task = snap.getValue(Task.class);
 
                     tasks.add(task);
-                    ListTaskAdapter adapter = new ListTaskAdapter(MainActivity.this, R.layout.tasks_list_item, tasks);
-                    livTasks.setAdapter(adapter);
+                    aLivTasks = new ListTaskAdapter(MainActivity.this, R.layout.tasks_list_item, tasks);
+                    livTasks.setAdapter(aLivTasks);
                     ajustaTamanho(tasks.size(), livTasks);
                 }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });*/
+
+        ref.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Task task = dataSnapshot.getValue(Task.class);
+
+                tasks.add(task);
+                aLivTasks = new ListTaskAdapter(MainActivity.this, R.layout.tasks_list_item, tasks);
+                livTasks.setAdapter(aLivTasks);
+                ajustaTamanho(tasks.size(), livTasks);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Task task = dataSnapshot.getValue(Task.class);
+                tasks.remove(task);
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
             }
 
             @Override
@@ -176,15 +233,6 @@ public class MainActivity extends AppCompatActivity
         lista.requestLayout();
     }
 
-    public void showListActions(){
-        try{
-            Menu menu = toolbar.getMenu();
-            MenuItem mi = menu.getItem(0);
-        }catch (Exception e){
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.list_actions, menu);
@@ -203,11 +251,43 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        if(item.getItemId() == R.id.mitDoneTask){
-
+        switch (item.getItemId()){
+            case R.id.mitDeleteTask:
+                deleteTasks();
+                break;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void deleteTasks(){
+        for(int i = 0; i < itemsSelected.size(); i++){
+            final TextView txtDescription = (TextView) livTasks.getChildAt(i).findViewById(R.id.txtDescription);
+            FirebaseDatabase fb = FirebaseDatabase.getInstance();
+            DatabaseReference ref = fb.getReference("users/" + user.getUid() + "/task");
+
+            String sDate = MyDate.getMyDate(new Date());
+            if(sDate != null){
+
+                ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for(DataSnapshot snap : dataSnapshot.getChildren()){
+                            if(snap.child("description").getValue().toString().equals(txtDescription.getText().toString())){
+                                snap.getRef().removeValue();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }else{
+                Toast.makeText(this, getString(R.string.anErrorOcurred), Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     @Override

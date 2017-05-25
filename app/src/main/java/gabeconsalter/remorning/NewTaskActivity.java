@@ -1,5 +1,6 @@
 package gabeconsalter.remorning;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -9,6 +10,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.CalendarView;
 import android.widget.EditText;
@@ -25,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import gabeconsalter.remorning.entity.MyDate;
 import gabeconsalter.remorning.entity.Task;
 
 public class NewTaskActivity extends AppCompatActivity {
@@ -35,7 +38,7 @@ public class NewTaskActivity extends AppCompatActivity {
     private FirebaseUser user;
     private EditText edtNewWhat;
     private CalendarView calendarView;
-    private Date data;
+    private Date data = new Date();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,22 +63,22 @@ public class NewTaskActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-                String sData = format.format(data);
+                String sData = MyDate.getMyDate(data);
 
-                try{
-                    data = format.parse(sData);
-                }catch(Exception e){
-                    Toast.makeText(NewTaskActivity.this, "Não foi possível salvar, tente novamente", Toast.LENGTH_SHORT).show();
+                if(sData != null){
+
+                    Task task = new Task(edtNewWhat.getText().toString(), sData, false);
+
+                    mAuth = FirebaseAuth.getInstance();
+                    user = mAuth.getCurrentUser();
+                    FirebaseDatabase fb = FirebaseDatabase.getInstance();
+                    DatabaseReference ref = fb.getReference("users/" + user.getUid() + "/task/");
+                    ref.push().setValue(task);
+
+                    finish();
+                }else{
+                    Toast.makeText(NewTaskActivity.this, getString(R.string.anErrorOcurred), Toast.LENGTH_SHORT).show();
                 }
-
-                Task task = new Task(edtNewWhat.getText().toString(), sData);
-
-                mAuth = FirebaseAuth.getInstance();
-                user = mAuth.getCurrentUser();
-                FirebaseDatabase fb = FirebaseDatabase.getInstance();
-                DatabaseReference ref = fb.getReference("users/" + user.getUid() + "/task/");
-                ref.push().setValue(task);
             }
         });
 
@@ -91,6 +94,25 @@ public class NewTaskActivity extends AppCompatActivity {
     public void disableFab(){
         fab.setEnabled(false);
         fab.getBackground().setAlpha(80);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Toast.makeText(this, getString(R.string.newTaskCancelled), Toast.LENGTH_SHORT).show();
+        finish();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()){
+            case android.R.id.home:
+                Toast.makeText(this, getString(R.string.newTaskCancelled), Toast.LENGTH_SHORT).show();
+                finish();
+                break;
+        }
+
+        return true;
     }
 
     public void initViews(){

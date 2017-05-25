@@ -10,13 +10,16 @@ public class Task {
 
     private String description;
     private String date;
+    private boolean done;
+    private String  id;
 
     public Task() {
     }
 
-    public Task(String description, String date) {
+    public Task(String description, String date, boolean done) {
         this.description = description;
         this.date = date;
+        this.done = done;
     }
 
     public String getDescription() {
@@ -34,4 +37,8 @@ public class Task {
     public void setDate(String date) {
         this.date = date;
     }
+
+    public boolean getDone() { return done; }
+
+    public void setDone(boolean done) { this.done = done; }
 }

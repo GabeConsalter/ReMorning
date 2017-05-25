@@ -27,7 +27,7 @@
     <string name="title_activity_config" translatable="false">ConfigActivity</string>
     <string name="notifications">Notifications</string>
     <string name="notificationsExpl">Show me notifications of tasks</string>
-    <string name="newTasks">New Tasks</string>
+    <string name="newTasks">Today tasks</string>
     <string name="newTasksExpl">Refresh Tasks</string>
     <string name="resetTasks">Reset Tasks</string>
     <string name="resetTasksExpl">Set this hour to reset tasks and store the delayed tasks</string>
@@ -37,4 +37,7 @@
     <string name="loginFailed">Google Login failed</string>
     <string name="close">Close</string>
     <string name="closeMsg">Are you sure you want to close Remorning?</string>
+    <string name="errorToSaveTask">There was an error saving te task, try again</string>
+    <string name="anErrorOcurred">An error ocurred, try again</string>
+    <string name="newTaskCancelled">New task cancelled</string>
 </resources>

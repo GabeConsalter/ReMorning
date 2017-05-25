@@ -6,12 +6,12 @@
     <string name="closeMsg">Você tem certeza que deseja fechar o Remorning?</string>
     <string name="configurations">Configurações</string>
     <string name="loginFailed">Falha ao logar com Google</string>
-    <string name="newTasks">Novas Tarefas</string>
+    <string name="newTasks">Tarefas de hoje</string>
     <string name="newtask">Nova Tarefa</string>
     <string name="newtaskhint0">comprar calçados</string>
     <string name="no">Não</string>
     <string name="notifications">Notificações</string>
-    <string name="oldTasks">Tarefas Atrasadas</string>
+    <string name="oldTasks">Tarefas atrasadas</string>
     <string name="notificationsExpl">Mostrar notificações das tarefas</string>
     <string name="options">Opções</string>
     <string name="resetTasks">Resetar Terefas</string>
