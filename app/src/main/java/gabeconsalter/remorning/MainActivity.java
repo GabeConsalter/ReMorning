@@ -1,5 +1,6 @@
 package gabeconsalter.remorning;
 
+import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,6 +22,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -75,7 +77,9 @@ public class MainActivity extends AppCompatActivity
     private LinearLayout navHeaderMain;
     private NavigationView navigationView;
     private View nvHeader;
-
+    private ArrayList<Integer> itemsSelected = new ArrayList<Integer>();
+    private Toolbar toolbar;
+    private boolean itemsEnabled = false;
     private ArrayList<Task> tasks = new ArrayList<Task>();
     private ListView livTasks;
 
@@ -83,9 +87,8 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         initView();
+        setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -134,21 +137,33 @@ public class MainActivity extends AppCompatActivity
         livTasks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                cleanListSelection(parent, tasks.size());
+                if(!itemsSelected.contains(position)){
+                    parent.getChildAt(position).setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimary));
+                    TextView txtDescription = (TextView) parent.getChildAt(position).findViewById(R.id.txtDescription);
+                    txtDescription.setTextColor(Color.WHITE);
 
-                parent.getChildAt(position).setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimary));
-                TextView txtDescription = (TextView) parent.getChildAt(position).findViewById(R.id.txtDescription);
-                txtDescription.setTextColor(Color.WHITE);
+                    itemsSelected.add(position);
+                }else{
+                    cleanListSelection(parent, position);
+                    int i = itemsSelected.indexOf(position);
+                    itemsSelected.remove(i);
+                }
+
+                if(itemsSelected.size() > 0){
+                    itemsEnabled = true;
+                    onCreateOptionsMenu(toolbar.getMenu());
+                }else{
+                    itemsEnabled = false;
+                    onCreateOptionsMenu(toolbar.getMenu());
+                }
             }
         });
 }
 
-    public void cleanListSelection(AdapterView<?> parent, int size){
-        for(int i = 0; i < size; i++) {
-            parent.getChildAt(i).setBackgroundColor(Color.WHITE);
-            TextView txtDescription = (TextView) parent.getChildAt(i).findViewById(R.id.txtDescription);
-            txtDescription.setTextColor(Color.GRAY);
-        }
+    public void cleanListSelection(AdapterView<?> parent, int position){
+        parent.getChildAt(position).setBackgroundColor(Color.WHITE);
+        TextView txtDescription = (TextView) parent.getChildAt(position).findViewById(R.id.txtDescription);
+        txtDescription.setTextColor(Color.GRAY);
     }
 
     public void ajustaTamanho(int c, ListView lista){
@@ -161,10 +176,38 @@ public class MainActivity extends AppCompatActivity
         lista.requestLayout();
     }
 
+    public void showListActions(){
+        try{
+            Menu menu = toolbar.getMenu();
+            MenuItem mi = menu.getItem(0);
+        }catch (Exception e){
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.list_actions, menu);
+
+        MenuItem mitDoneTask = menu.findItem(R.id.mitDoneTask);
+        MenuItem mitDeleteTask = menu.findItem(R.id.mitDeleteTask);
+
+        mitDoneTask.setEnabled(itemsEnabled);
+        mitDoneTask.setVisible(itemsEnabled);
+        mitDeleteTask.setEnabled(itemsEnabled);
+        mitDeleteTask.setVisible(itemsEnabled);
+
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if(item.getItemId() == R.id.mitDoneTask){
+
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -221,7 +264,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void initView(){
-
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         nvHeader = navigationView.getHeaderView(0);
         imgUserPhoto = (ImageView) nvHeader.findViewById(R.id.imgUserPhoto);
