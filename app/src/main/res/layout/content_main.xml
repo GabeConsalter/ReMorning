@@ -39,5 +39,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+
+        <FrameLayout
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ListView
+                android:id="@+id/livOldTasks"
+                android:layout_width="match_parent"
+                android:layout_height="0dp" />
+        </FrameLayout>
     </LinearLayout>
 </ScrollView>

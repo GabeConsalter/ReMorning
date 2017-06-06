@@ -82,9 +82,15 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<Integer> itemsSelected = new ArrayList<Integer>();
     private Toolbar toolbar;
     private boolean itemsEnabled = false;
+
     private ArrayList<Task> tasks = new ArrayList<Task>();
     private ListView livTasks;
     private ListTaskAdapter aLivTasks;
+
+    private ArrayList<Task> oldTasks = new ArrayList<Task>();
+    private ListView livOldTasks;
+    private ListTaskAdapter aLivOldTasks;
+
     private static final int NEW_TASK = 69;
 
     @Override
@@ -116,79 +122,49 @@ public class MainActivity extends AppCompatActivity
         infoUser();
 
         FirebaseDatabase fb = FirebaseDatabase.getInstance();
-        DatabaseReference ref = fb.getReference("users/" + user.getUid() + "/task");
-/*
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                for(DataSnapshot snap: dataSnapshot.getChildren()){
-                    Task task = snap.getValue(Task.class);
-
-                    tasks.add(task);
-                    aLivTasks = new ListTaskAdapter(MainActivity.this, R.layout.tasks_list_item, tasks);
-                    livTasks.setAdapter(aLivTasks);
-                    ajustaTamanho(tasks.size(), livTasks);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });*/
-/*
-        ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                for(DataSnapshot snap: dataSnapshot.getChildren()){
-                    Task task = snap.getValue(Task.class);
-
-                    tasks.add(task);
-                    aLivTasks = new ListTaskAdapter(MainActivity.this, R.layout.tasks_list_item, tasks);
-                    livTasks.setAdapter(aLivTasks);
-                    ajustaTamanho(tasks.size(), livTasks);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });*/
+        DatabaseReference ref = fb.getReference("users/" + user.getUid());
+        updateTasks(fb);
 
         ref.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Task task = dataSnapshot.getValue(Task.class);
 
-                tasks.add(task);
-                aLivTasks = new ListTaskAdapter(MainActivity.this, R.layout.tasks_list_item, tasks);
-                livTasks.setAdapter(aLivTasks);
-                ajustaTamanho(tasks.size(), livTasks);
+                if(dataSnapshot.getKey().equals("task")){
+                    DatabaseReference ref = dataSnapshot.getRef();
+                    Task task = dataSnapshot.getValue(Task.class);
+
+                    tasks.add(task);
+                    aLivTasks = new ListTaskAdapter(MainActivity.this, R.layout.tasks_list_item, tasks);
+                    livTasks.setAdapter(aLivTasks);
+                    ajustaTamanho(tasks.size(), livTasks);
+
+                }else if(dataSnapshot.getKey().equals("oldTask")){
+                    Task task = dataSnapshot.getValue(Task.class);
+
+                    oldTasks.add(task);
+                    aLivOldTasks = new ListTaskAdapter(MainActivity.this, R.layout.old_tasks_list_item, oldTasks);
+                    livOldTasks.setAdapter(aLivOldTasks);
+                    ajustaTamanho(oldTasks.size(), livOldTasks);
+                }
             }
 
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
-            }
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Task task = dataSnapshot.getValue(Task.class);
+                aLivTasks.remove(task);
                 tasks.remove(task);
+                aLivTasks.notifyDataSetChanged();
+                reloadActivity();
             }
 
             @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
+            public void onCancelled(DatabaseError databaseError) {}
         });
 
         livTasks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -215,7 +191,69 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+
+        livOldTasks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if(!itemsSelected.contains(position)){
+                    parent.getChildAt(position).setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimary));
+                    TextView txtDescription = (TextView) parent.getChildAt(position).findViewById(R.id.txtDescription);
+                    txtDescription.setTextColor(Color.WHITE);
+
+                    itemsSelected.add(position);
+                }else{
+                    cleanListSelection(parent, position);
+                    int i = itemsSelected.indexOf(position);
+                    itemsSelected.remove(i);
+                }
+
+                if(itemsSelected.size() > 0){
+                    itemsEnabled = true;
+                    onCreateOptionsMenu(toolbar.getMenu());
+                }else{
+                    itemsEnabled = false;
+                    onCreateOptionsMenu(toolbar.getMenu());
+                }
+            }
+        });
 }
+
+    public void reloadActivity(){
+        finish();
+        startActivity(new Intent(getIntent()));
+    }
+
+    public void updateTasks(final FirebaseDatabase fb){
+        DatabaseReference ref = fb.getReference("users/" + user.getUid() + "/task");
+
+        ref.orderByChild("date").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Task task = dataSnapshot.getValue(Task.class);
+
+                if(MyDate.before(task.getDate(), MyDate.getMyDate(new Date()))){
+                    dataSnapshot.getRef().removeValue();
+
+                    DatabaseReference newRef = fb.getReference("users/" + user.getUid() + "/oldTask");
+                    newRef.push().setValue(task);
+                }
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {}
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
+
+    }
 
     public void cleanListSelection(AdapterView<?> parent, int position){
         parent.getChildAt(position).setBackgroundColor(Color.WHITE);
@@ -350,7 +388,10 @@ public class MainActivity extends AppCompatActivity
         imgUserPhoto = (ImageView) nvHeader.findViewById(R.id.imgUserPhoto);
         txtUserName = (TextView) nvHeader.findViewById(R.id.txtUserName);
         txtUserEmail = (TextView) nvHeader.findViewById(R.id.txtUserEmail);
+
         livTasks = (ListView) findViewById(R.id.livTasks);
+
+        livOldTasks = (ListView) findViewById(R.id.livOldTasks);
     }
 
     public void infoUser(){
