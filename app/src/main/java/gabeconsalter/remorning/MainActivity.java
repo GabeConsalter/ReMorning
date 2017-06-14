@@ -80,6 +80,7 @@ public class MainActivity extends AppCompatActivity
     private NavigationView navigationView;
     private View nvHeader;
     private ArrayList<Integer> itemsSelected = new ArrayList<Integer>();
+    private ArrayList<Integer> itemsOldSelected = new ArrayList<Integer>();
     private Toolbar toolbar;
     private boolean itemsEnabled = false;
 
@@ -195,19 +196,19 @@ public class MainActivity extends AppCompatActivity
         livOldTasks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if(!itemsSelected.contains(position)){
+                if(!itemsOldSelected.contains(position)){
                     parent.getChildAt(position).setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimary));
                     TextView txtDescription = (TextView) parent.getChildAt(position).findViewById(R.id.txtDescription);
                     txtDescription.setTextColor(Color.WHITE);
 
-                    itemsSelected.add(position);
+                    itemsOldSelected.add(position);
                 }else{
                     cleanListSelection(parent, position);
-                    int i = itemsSelected.indexOf(position);
-                    itemsSelected.remove(i);
+                    int i = itemsOldSelected.indexOf(position);
+                    itemsOldSelected.remove(i);
                 }
 
-                if(itemsSelected.size() > 0){
+                if(itemsOldSelected.size() > 0){
                     itemsEnabled = true;
                     onCreateOptionsMenu(toolbar.getMenu());
                 }else{
