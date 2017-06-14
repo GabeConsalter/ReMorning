@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <item android:title="@string/lists">
+        <menu>
+            <item
+                android:id="@+id/navDone"
+                android:icon="@drawable/ic_done_b"
+                android:title="@string/done" />
+        </menu>
+    </item>
+
     <item android:title="@string/options">
         <menu>
             <item

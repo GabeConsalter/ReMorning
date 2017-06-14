@@ -1,9 +1,14 @@
 package gabeconsalter.remorning;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -14,8 +19,11 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.NotificationBuilderWithBuilderAccessor;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -66,6 +74,8 @@ import java.util.List;
 import gabeconsalter.remorning.entity.MyDate;
 import gabeconsalter.remorning.entity.Task;
 import gabeconsalter.remorning.misc.ListTaskAdapter;
+
+import static java.security.AccessController.getContext;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -123,25 +133,70 @@ public class MainActivity extends AppCompatActivity
         infoUser();
 
         FirebaseDatabase fb = FirebaseDatabase.getInstance();
-        DatabaseReference ref = fb.getReference("users/" + user.getUid());
+        DatabaseReference refTasks = fb.getReference("users/" + user.getUid() + "/task");
+        DatabaseReference refOldTasks = fb.getReference("users/" + user.getUid() + "/oldTask");
         updateTasks(fb);
 
-        ref.addChildEventListener(new ChildEventListener() {
+        refTasks.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-                if(dataSnapshot.getKey().equals("task")){
-                    DatabaseReference ref = dataSnapshot.getRef();
-                    Task task = dataSnapshot.getValue(Task.class);
-
+                Task task = dataSnapshot.getValue(Task.class);
+                if(!task.getDone() && task.getDate().equals(MyDate.getMyDate(new Date()))){
                     tasks.add(task);
                     aLivTasks = new ListTaskAdapter(MainActivity.this, R.layout.tasks_list_item, tasks);
                     livTasks.setAdapter(aLivTasks);
                     ajustaTamanho(tasks.size(), livTasks);
 
-                }else if(dataSnapshot.getKey().equals("oldTask")){
-                    Task task = dataSnapshot.getValue(Task.class);
 
+
+                    Context ctx = MainActivity.this;
+                    Intent notificationIntent = new Intent(ctx, MainActivity.class);
+                    PendingIntent contentIntent = PendingIntent.getActivity(ctx,
+                            555, notificationIntent,
+                            PendingIntent.FLAG_CANCEL_CURRENT);
+
+                    NotificationManager nm = (NotificationManager) ctx
+                            .getSystemService(Context.NOTIFICATION_SERVICE);
+
+                    Resources res = ctx.getResources();
+                    Notification.Builder builder = new Notification.Builder(ctx);
+
+                    builder.setContentIntent(contentIntent)
+                            .setSmallIcon(R.drawable.ic_done)
+                            .setLargeIcon(BitmapFactory.decodeResource(res, R.drawable.ic_done))
+                            .setAutoCancel(true)
+                            .setContentTitle("Hello " + user.getDisplayName())
+                            .setContentText("You have " + tasks.size() + " tasks today");
+                    Notification n = builder.build();
+
+                    nm.notify(001, n);
+                }
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Task task = dataSnapshot.getValue(Task.class);
+                aLivTasks.remove(task);
+                tasks.remove(task);
+                aLivTasks.notifyDataSetChanged();
+                reloadActivity();
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
+
+        refOldTasks.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Task task = dataSnapshot.getValue(Task.class);
+                if(!task.getDone()){
                     oldTasks.add(task);
                     aLivOldTasks = new ListTaskAdapter(MainActivity.this, R.layout.old_tasks_list_item, oldTasks);
                     livOldTasks.setAdapter(aLivOldTasks);
@@ -155,9 +210,9 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Task task = dataSnapshot.getValue(Task.class);
-                aLivTasks.remove(task);
-                tasks.remove(task);
-                aLivTasks.notifyDataSetChanged();
+                aLivOldTasks.remove(task);
+                oldTasks.remove(task);
+                aLivOldTasks.notifyDataSetChanged();
                 reloadActivity();
             }
 
@@ -200,6 +255,8 @@ public class MainActivity extends AppCompatActivity
                     parent.getChildAt(position).setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimary));
                     TextView txtDescription = (TextView) parent.getChildAt(position).findViewById(R.id.txtDescription);
                     txtDescription.setTextColor(Color.WHITE);
+                    TextView txtDate = (TextView) parent.getChildAt(position).findViewById(R.id.txtDate);
+                    txtDate.setTextColor(Color.WHITE);
 
                     itemsOldSelected.add(position);
                 }else{
@@ -256,10 +313,18 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    public void addDone(Task task){
+
+    }
+
     public void cleanListSelection(AdapterView<?> parent, int position){
         parent.getChildAt(position).setBackgroundColor(Color.WHITE);
         TextView txtDescription = (TextView) parent.getChildAt(position).findViewById(R.id.txtDescription);
         txtDescription.setTextColor(Color.GRAY);
+        TextView txtDate = (TextView) parent.getChildAt(position).findViewById(R.id.txtDate);
+        if(txtDate != null){
+            txtDate.setTextColor(Color.GRAY);
+        }
     }
 
     public void ajustaTamanho(int c, ListView lista){
@@ -294,6 +359,9 @@ public class MainActivity extends AppCompatActivity
             case R.id.mitDeleteTask:
                 deleteTasks();
                 break;
+            case R.id.mitDoneTask:
+                deleteTasks();
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -301,7 +369,7 @@ public class MainActivity extends AppCompatActivity
 
     public void deleteTasks(){
         for(int i = 0; i < itemsSelected.size(); i++){
-            final TextView txtDescription = (TextView) livTasks.getChildAt(i).findViewById(R.id.txtDescription);
+            final TextView txtDescriptionTask = (TextView) livTasks.getChildAt(i).findViewById(R.id.txtDescription);
             FirebaseDatabase fb = FirebaseDatabase.getInstance();
             DatabaseReference ref = fb.getReference("users/" + user.getUid() + "/task");
 
@@ -312,8 +380,98 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         for(DataSnapshot snap : dataSnapshot.getChildren()){
-                            if(snap.child("description").getValue().toString().equals(txtDescription.getText().toString())){
+                            if(snap.child("description").getValue().toString().equals(txtDescriptionTask.getText().toString())){
                                 snap.getRef().removeValue();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }else{
+                Toast.makeText(this, getString(R.string.anErrorOcurred), Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        for(int i = 0; i < itemsOldSelected.size(); i++){
+            final TextView txtDescriptionOldTask = (TextView) livOldTasks.getChildAt(i).findViewById(R.id.txtDescription);
+            FirebaseDatabase fb = FirebaseDatabase.getInstance();
+            DatabaseReference ref = fb.getReference("users/" + user.getUid() + "/oldTask");
+
+            String sDate = MyDate.getMyDate(new Date());
+            if(sDate != null){
+
+                ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for(DataSnapshot snap : dataSnapshot.getChildren()){
+                            if(snap.child("description").getValue().toString().equals(txtDescriptionOldTask.getText().toString())){
+                                snap.getRef().removeValue();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }else{
+                Toast.makeText(this, getString(R.string.anErrorOcurred), Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    public void doneTasks(){
+        for(int i = 0; i < itemsSelected.size(); i++){
+            final TextView txtDescriptionTask = (TextView) livTasks.getChildAt(i).findViewById(R.id.txtDescription);
+            FirebaseDatabase fb = FirebaseDatabase.getInstance();
+            DatabaseReference ref = fb.getReference("users/" + user.getUid() + "/task");
+
+            String sDate = MyDate.getMyDate(new Date());
+            if(sDate != null){
+
+                ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for(DataSnapshot snap : dataSnapshot.getChildren()){
+                            if(snap.child("description").getValue().toString().equals(txtDescriptionTask.getText().toString())){
+                                Task task = snap.getValue(Task.class);
+                                task.setDone(true);
+                                snap.getRef().setValue(task);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }else{
+                Toast.makeText(this, getString(R.string.anErrorOcurred), Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        for(int i = 0; i < itemsOldSelected.size(); i++){
+            final TextView txtDescriptionOldTask = (TextView) livOldTasks.getChildAt(i).findViewById(R.id.txtDescription);
+            FirebaseDatabase fb = FirebaseDatabase.getInstance();
+            DatabaseReference ref = fb.getReference("users/" + user.getUid() + "/oldTask");
+
+            String sDate = MyDate.getMyDate(new Date());
+            if(sDate != null){
+
+                ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for(DataSnapshot snap : dataSnapshot.getChildren()){
+                            if(snap.child("description").getValue().toString().equals(txtDescriptionOldTask.getText().toString())){
+                                Task task = snap.getValue(Task.class);
+                                task.setDone(true);
+                                snap.getRef().setValue(task);
                             }
                         }
                     }

@@ -95,7 +95,7 @@
             android:layout_weight="3"
             android:orientation="horizontal">
 
-            <TextClock
+            <TextView
                 android:id="@+id/txtConfigNewTasksHour"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -143,7 +143,7 @@
             android:layout_weight="3"
             android:orientation="horizontal">
 
-            <TextClock
+            <TextView
                 android:id="@+id/txtConfigResetHour"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

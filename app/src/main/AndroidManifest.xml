@@ -28,7 +28,7 @@
         <activity
             android:name=".ConfigActivity"
             android:label="@string/configurations"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
     </application>
 
 </manifest>

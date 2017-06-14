@@ -25,4 +25,9 @@
     <string name="resetTasksExpl">Configure esta hora para resetar tarefas e armazenar as tarefas atrasadas</string>
     <string name="relaxBoy">Relaxa, você tem mais... nada para fazer!</string>
     <string name="newTasksExpl">Atualizar Tarefas</string>
+    <string name="newTaskCancelled">Nova tarefa cancelada</string>
+    <string name="errorToSaveTask">Erro ao salvar a tarefa</string>
+    <string name="done">Concluído</string>
+    <string name="lists">Listas</string>
+    <string name="anErrorOcurred">Ocorreu um erro inesperado, tente novamente</string>
 </resources>

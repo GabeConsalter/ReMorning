@@ -40,4 +40,6 @@
     <string name="errorToSaveTask">There was an error saving te task, try again</string>
     <string name="anErrorOcurred">An error ocurred, try again</string>
     <string name="newTaskCancelled">New task cancelled</string>
+    <string name="done">Done</string>
+    <string name="lists">Lists</string>
 </resources>
